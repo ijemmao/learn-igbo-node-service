@@ -1,0 +1,24 @@
+{
+  "name": "node-service",
+  "version": "1.0.0",
+  "description": "node service to interact with google translate api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec babel-node --presets env,stage-2 server.js"
+  },
+  "author": "Ijemma Onwuzulike",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/translate": "^2.1.2",
+    "axios": "^0.18.0",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "nodemon": "^1.18.7"
+  }
+}
