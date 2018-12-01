@@ -16,7 +16,7 @@ const translateInput = (req, res) => {
   })
   .catch(error => {
     return res.json({
-      error: 'there was an error translating the input',
+      error,
       errorMessage: error.message
     });
   })
