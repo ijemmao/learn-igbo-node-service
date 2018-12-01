@@ -2,7 +2,7 @@ import express from 'express';
 import actions from './actions/actions';
 const app = express();
 
-app.get('/', (res) => {
+app.get('/', (req, res) => {
   res.send('Welcome to the Learn Igbo API');
 });
 
