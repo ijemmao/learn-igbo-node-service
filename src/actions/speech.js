@@ -1,5 +1,5 @@
-import { Speech } from '@google-cloud/speech';
+const client = require('@google-cloud/speech');
 
-const speech = new Speech.SpeechClient();
+const speech = new client.SpeechClient();
 
 export default speech;
