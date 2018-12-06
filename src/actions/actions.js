@@ -1,4 +1,5 @@
 import translate from './translate';
+import speech from './/speech';
 
 const translateInput = (req, res) => {
   console.log(req.headers);
@@ -22,4 +23,37 @@ const translateInput = (req, res) => {
   })
 }
 
-export default { translateInput };
+const convertSpeech = (req, res) => {
+  const audioBytes = req.params.audio;
+  
+  const audio = {
+    content: audioBytes,
+  };
+  const config = {
+    encoding: 'LINEAR16',
+    sampleRateHertz: 16000,
+    language: 'en-US',
+  };
+  const request = {
+    audio,
+    config,
+  };
+
+  speech.recognize(request).then(response => {
+    console.log('Response:', response);
+    const transcription = [response].results
+      .map(result => result.alternatives[0].transcript)
+      .join('\n');
+    console.log('Transcription:', transcription);
+    return res.json(transcription);
+  })
+  .catch((error) => {
+    console.log('Error:', error);
+    return res.json({
+      error,
+      errorMessage: error.message
+    });
+  });
+}
+
+export default { translateInput, convertSpeech };
