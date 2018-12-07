@@ -1,5 +1,7 @@
 import translate from './translate';
-import speech from './/speech';
+import speech from './speech';
+
+import fs from 'fs';
 
 const translateInput = (req, res) => {
   console.log(req.headers);
@@ -16,7 +18,7 @@ const translateInput = (req, res) => {
     return res.json(translatedWords);
   })
   .catch(error => {
-    return res.json({
+    return res.state(500).json({
       error,
       errorMessage: error.message
     });
@@ -24,15 +26,20 @@ const translateInput = (req, res) => {
 }
 
 const convertSpeech = (req, res) => {
-  const audioBytes = req.params.audio;
+  console.log(req.query);
+  console.log(req.params);
+  console.log(req.data);
+  console.log(req.body);
+  // const audioBytes = req.params.audio;
+  const audioBytes = fs.readFileSync('src/test/my_audio_file.wav').toString('base64');
   
   const audio = {
     content: audioBytes,
   };
   const config = {
     encoding: 'LINEAR16',
-    sampleRateHertz: 16000,
-    language: 'en-US',
+    sampleRateHertz: 44100,
+    languageCode: 'en-US',
   };
   const request = {
     audio,
@@ -40,8 +47,8 @@ const convertSpeech = (req, res) => {
   };
 
   speech.recognize(request).then(response => {
-    console.log('Response:', response);
-    const transcription = [response].results
+    console.log('Response:', response[0].results);
+    const transcription = response[0].results
       .map(result => result.alternatives[0].transcript)
       .join('\n');
     console.log('Transcription:', transcription);
@@ -49,10 +56,10 @@ const convertSpeech = (req, res) => {
   })
   .catch((error) => {
     console.log('Error:', error);
-    return res.json({
+    return res.status(500).json({
       error,
       errorMessage: error.message
-    });
+    }); 
   });
 }
 
