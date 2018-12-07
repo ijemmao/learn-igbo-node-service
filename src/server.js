@@ -10,7 +10,7 @@ app.get('/translate', (req, res) => {
   actions.translateInput(req, res);
 });
 
-app.get('/speech', (req, res) => {
+app.post('/speech', (req, res) => {
   actions.convertSpeech(req, res);
 });
 
