@@ -64,4 +64,4 @@ typings/
 build/
 
 src/google.*
-src/actions/firebase.*
+src/**/firebase.*
