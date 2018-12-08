@@ -1,10 +1,22 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import morgan from 'morgan';
+import multer from 'multer';
 import actions from './actions/actions';
 import './actions/firebase';
 
 const app = express();
 const mongoDB = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/learn-igbo';
+// const upload = multer({ dest: 'uploads/' });
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+app.use(cors())
+app.use(morgan('dev'))
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json());
 
 let database;
 mongoose.connect(mongoDB)
@@ -31,7 +43,7 @@ app.get('/track/:id', (req, res) => {
   actions.downloadAudio(req, res, database);
 });
 
-app.post('/track', (req, res) => {
+app.post('/track', upload.single('track'), (req, res) => {
   actions.uploadAudio(req, res, database);
 })
 
