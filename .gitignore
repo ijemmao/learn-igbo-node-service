@@ -63,5 +63,5 @@ typings/
 # production files
 build/
 
-# src/google.*
-# src/actions/firebase.*
+src/google.*
+src/actions/firebase.*

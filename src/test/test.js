@@ -8,7 +8,7 @@ const client = new speech.SpeechClient();
 const url = 'http://localhost:8080/track/5c0c2757f2dcdba0b0fdd311';
 
 axios({
-  responseType: 'arraybuffer',
+  responseType: 'arraybuffer', 
   url,
   method: 'GET',
   headers: {
