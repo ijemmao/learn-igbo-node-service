@@ -39,11 +39,11 @@ app.get('/speech/:id', (req, res) => {
   actions.convertSpeech(req, res);
 });
 
-app.get('/track/:id', (req, res) => {
+app.get('/audio/:id', (req, res) => {
   actions.downloadAudio(req, res, database);
 });
 
-app.post('/track', upload.single('track'), (req, res) => {
+app.post('/audio', upload.single('track'), (req, res) => {
   actions.uploadAudio(req, res, database);
 })
 

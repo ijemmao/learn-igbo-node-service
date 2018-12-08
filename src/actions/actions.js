@@ -1,12 +1,14 @@
 import mongodb from 'mongodb';
 import multer from 'multer';
 import { Readable } from 'stream';
+import axios from 'axios';
 import admin from './firebase';
 import translate from './translate';
-import speech from './speech';
+import speech from '@google-cloud/speech';
 
 const database = admin.database();
 const ObjectID = mongodb.ObjectID;
+const client = new speech.SpeechClient();
 
 const translateInput = (req, res) => {
   console.log(req.headers);
@@ -35,7 +37,7 @@ const uploadAudio = (req, res, database) => {
   const storage = multer.memoryStorage();
   const upload = multer({ storage, limits: { fields: 1, fileSize: 6000000, files: 1, parts: 2 } });
 
-  upload.single('track')(req, res, (err) => {
+  upload.single('track')(req, res, async(err) => {
     if (err) {
       return res.status(400).json({ message: "Upload Request Validation Failed" });
     } else if (!name) {
@@ -62,7 +64,7 @@ const uploadAudio = (req, res, database) => {
     });
 
     uploadStream.on('finish', () => {
-      return res.status(201).json({ message: "File uploaded successfully, stored under Mongo ObjectID: " + id });
+      return res.status(201).json({ message: "File uploaded successfully, stored under Mongo ObjectID: " + id, id });
     });
 
   })
@@ -98,39 +100,47 @@ const downloadAudio = (req, res, database) => {
   });
 }
 
-const convertSpeech = (req, res) => {
+const convertSpeech = (req, og_res) => {
+  const client = new speech.SpeechClient();
 
-  // database.ref(`/audio/${req.params.id}`).once('value')
-  // .then((snapshot) => {
-  //   const audioBytes = snapshot.val();
-  //   const audio = {
-  //     content: audioBytes,
-  //   };
-  //   const config = {
-  //     encoding: 'LINEAR16',
-  //     sampleRateHertz: 44100,
-  //     languageCode: 'en-US',
-  //   };
-  //   const request = {
-  //     audio,
-  //     config,
-  //   };
-  //   speech.recognize(request).then(response => {
-  //     const transcription = response[0].results
-  //       .map(result => result.alternatives[0].transcript)
-  //       .join('\n');
-  //     console.log('Transcription:', transcription);
-  //     return res.json(transcription);
-  //   })
-  //   .catch((error) => {
-  //     console.log('Error:', error);
-  //     return res.status(500).json({
-  //       error,
-  //       errorMessage: error.message
-  //     }); 
-  //   });
-  // })
+  const url = `http://localhost:8080/audio/${req.params.id}`;
 
+  axios({
+    responseType: 'arraybuffer',
+    url,
+    method: 'GET',
+    headers: {
+      'Content-Type': 'audio/vnd.wav',
+    },
+  }).then(async (res) => {
+    const audioBytes = res.data.toString('base64');
+    const audio = {
+      content: audioBytes,
+    };
+    const config = {
+      encoding: 'LINEAR16',
+      sampleRateHertz: 44100,
+      languageCode: 'en-US',
+    };
+    const request = {
+      audio: audio,
+      config: config,
+    };
+
+    // Detects speech in the audio file
+    const [response] = await client.recognize(request);
+    const transcription = response.results
+      .map(result => result.alternatives[0].transcript)
+      .join('\n');
+    console.log(response);
+    console.log(`Transcription: ${transcription}`);
+
+    og_res.json(transcription);
+
+  })
+    .catch((error) => {
+      console.log(error);
+    })
 }
 
 export default { translateInput, convertSpeech, uploadAudio, downloadAudio };
