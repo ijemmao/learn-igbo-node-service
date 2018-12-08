@@ -4,7 +4,7 @@ import actions from './actions/actions';
 import './actions/firebase';
 
 const app = express();
-const mongoDB = 'mongodb://127.0.0.1:27017/learn-igbo';
+const mongoDB = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/learn-igbo';
 
 let database;
 mongoose.connect(mongoDB)
