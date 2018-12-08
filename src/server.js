@@ -1,5 +1,6 @@
 import express from 'express';
 import actions from './actions/actions';
+import './actions/firebase';
 const app = express();
 
 app.get('/', (req, res) => {
@@ -10,7 +11,7 @@ app.get('/translate', (req, res) => {
   actions.translateInput(req, res);
 });
 
-app.post('/speech', (req, res) => {
+app.get('/speech/:id', (req, res) => {
   actions.convertSpeech(req, res);
 });
 
