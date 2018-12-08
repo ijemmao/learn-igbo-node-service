@@ -31,17 +31,18 @@ const translateInput = (req, res) => {
 }
 
 const uploadAudio = (req, res, database) => {
+  const name = req.body.name;
   const storage = multer.memoryStorage();
   const upload = multer({ storage, limits: { fields: 1, fileSize: 6000000, files: 1, parts: 2 } });
 
   upload.single('track')(req, res, (err) => {
     if (err) {
       return res.status(400).json({ message: "Upload Request Validation Failed" });
-    } else if (!req.body.name) {
+    } else if (!name) {
       return res.status(400).json({ message: "No track name in request body" });
     }
 
-    let trackName = req.body.name;
+    let trackName = name;
 
     // Covert buffer to Readable Stream
     const readableTrackStream = new Readable();
@@ -81,6 +82,7 @@ const downloadAudio = (req, res, database) => {
     bucketName: 'tracks'
   });
 
+
   let downloadStream = bucket.openDownloadStream(id);
 
   downloadStream.on('data', (chunk) => {
@@ -97,17 +99,6 @@ const downloadAudio = (req, res, database) => {
 }
 
 const convertSpeech = (req, res) => {
-
-
-  // storage.ref().child('audio').getDownloadURL().then((url) => {
-  //   axios.get(url).then((res) => {
-  //     console.log(res);
-  //   })
-  // })
-  // .catch((error) => {
-  //   res.status(500).json({ error });
-  // })
-
 
   // database.ref(`/audio/${req.params.id}`).once('value')
   // .then((snapshot) => {
