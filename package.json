@@ -8,18 +8,21 @@
     "build-babel": "babel -d ./build ./src -s",
     "build": "npm run clean && npm run build-babel",
     "start": "npm run build && node ./build/server.js",
-    "dev": "nodemon --exec babel-node --presets env,stage-2 server.js"
+    "dev": "nodemon --exec babel-node --presets env,stage-2 src/server.js"
   },
   "author": "Ijemma Onwuzulike",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/speech": "^2.1.1",
     "@google-cloud/translate": "^2.1.2",
     "axios": "^0.18.0",
-    "dotenv": "^6.1.0",
-    "express": "^4.16.4",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.4",
+    "mongodb": "^3.1.10",
+    "multer": "^1.4.1",
     "nodemon": "^1.18.7"
   }
 }
