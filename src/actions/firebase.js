@@ -7,4 +7,4 @@ admin.initializeApp({
   storageBucket: "learn-igbo-1543470589176.appspot.com",
 });
 
-export default admin;
+export default admin; 
