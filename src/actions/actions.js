@@ -104,8 +104,8 @@ const downloadAudio = (req, res, database) => {
 const convertSpeech = (req, og_res) => {
   const client = new speech.SpeechClient();
 
-  const url = `https://learn-igbo.herokuapp.com/audio/${req.params.id}`;
-  // const url = `http://localhost:8080/audio/${req.params.id}`;
+  // const url = `https://learn-igbo.herokuapp.com/audio/${req.params.id}`;
+  const url = `http://localhost:8080/audio/${req.params.id}`;
 
   axios({
     responseType: 'arraybuffer',
@@ -115,37 +115,29 @@ const convertSpeech = (req, og_res) => {
       'Content-Type': 'audio/vnd.wav',
     },
   }).then(async (res) => {
-    console.log(__dirname + '/../recording.wav');
-    const writeStream = fs.createWriteStream(__dirname + '/../recording.wav');
-    writeStream.on('open', async() => {
-      writeStream.write(res.data);
-      writeStream.end();
+    const audioBytes = res.data.toString('base64');
+    const audio = {
+      content: audioBytes,
+    };
+    const config = {
+      encoding: 'LINEAR16',
+      sampleRateHertz: 16000,
+      languageCode: 'en-US',
+    };
+    const request = {
+      audio: audio,
+      config: config,
+    };
 
-      const audioBytes = fs.readFileSync(__dirname + '/../recording.wav').toString('base64');
-      // const audioBytes = res.data.toString('base64');
-      const audio = {
-        content: audioBytes,
-      };
-      const config = {
-        encoding: 'LINEAR16',
-        sampleRateHertz: 16000,
-        languageCode: 'en-US',
-      };
-      const request = {
-        audio: audio,
-        config: config,
-      };
+    // Detects speech in the audio file
+    const [response] = await client.recognize(request);
+    const transcription = response.results
+      .map(result => result.alternatives[0].transcript)
+      .join('\n');
+    console.log(response);
+    console.log(`Transcription: ${transcription}`);
 
-      // Detects speech in the audio file
-      const [response] = await client.recognize(request);
-      const transcription = response.results
-        .map(result => result.alternatives[0].transcript)
-        .join('\n');
-      console.log(response);
-      console.log(`Transcription: ${transcription}`);
-
-      og_res.json(transcription);
-    })
+    og_res.json(transcription);
 
   })
     .catch((error) => {
