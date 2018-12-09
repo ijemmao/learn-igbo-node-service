@@ -116,12 +116,12 @@ const convertSpeech = (req, og_res) => {
     },
   }).then(async (res) => {
     console.log(__dirname + '/../recording.wav');
-    const writeStream = fs.createWriteStream(__dirname + '/../files/recording.wav');
+    const writeStream = fs.createWriteStream(__dirname + '/../recording.wav');
     writeStream.on('open', async() => {
       writeStream.write(res.data);
       writeStream.end();
 
-      const audioBytes = fs.readFileSync(__dirname + '/../files/recording.wav').toString('base64');
+      const audioBytes = fs.readFileSync(__dirname + '/../recording.wav').toString('base64');
       // const audioBytes = res.data.toString('base64');
       const audio = {
         content: audioBytes,
