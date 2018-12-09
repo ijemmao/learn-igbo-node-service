@@ -104,8 +104,8 @@ const downloadAudio = (req, res, database) => {
 const convertSpeech = (req, og_res) => {
   const client = new speech.SpeechClient();
 
-  const url = `https://learn-igbo.herokuapp.com/audio/${req.params.id}`;
-  // const url = `http://localhost:8080/audio/${req.params.id}`;
+  // const url = `https://learn-igbo.herokuapp.com/audio/${req.params.id}`;
+  const url = `http://localhost:8080/audio/${req.params.id}`;
 
   axios({
     responseType: 'arraybuffer',
@@ -115,12 +115,13 @@ const convertSpeech = (req, og_res) => {
       'Content-Type': 'audio/vnd.wav',
     },
   }).then(async (res) => {
-    const writeStream = fs.createWriteStream('src/files/recording.wav');
+    console.log(__dirname + '/../recording.wav');
+    const writeStream = fs.createWriteStream(__dirname + '/../files/recording.wav');
     writeStream.on('open', async() => {
       writeStream.write(res.data);
       writeStream.end();
 
-      const audioBytes = fs.readFileSync('src/files/recording.wav').toString('base64');
+      const audioBytes = fs.readFileSync(__dirname + '/../files/recording.wav').toString('base64');
       // const audioBytes = res.data.toString('base64');
       const audio = {
         content: audioBytes,
