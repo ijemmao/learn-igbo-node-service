@@ -103,7 +103,8 @@ const downloadAudio = (req, res, database) => {
 const convertSpeech = (req, og_res) => {
   const client = new speech.SpeechClient();
 
-  const url = `https://learn-igbo.herokuapp.com/audio/${req.params.id}`;
+  // const url = `https://learn-igbo.herokuapp.com/audio/${req.params.id}`;
+  const url = `http://localhost:8080/audio/${req.params.id}`;
 
   axios({
     responseType: 'arraybuffer',
