@@ -2,6 +2,7 @@ import mongodb from 'mongodb';
 import multer from 'multer';
 import { Readable } from 'stream';
 import axios from 'axios';
+import fs from 'fs';
 import admin from './firebase';
 import translate from './translate';
 import speech from '@google-cloud/speech';
@@ -104,6 +105,7 @@ const convertSpeech = (req, og_res) => {
   const client = new speech.SpeechClient();
 
   const url = `https://learn-igbo.herokuapp.com/audio/${req.params.id}`;
+  // const url = `http://localhost:8080/audio/${req.params.id}`;
 
   axios({
     responseType: 'arraybuffer',
@@ -113,29 +115,36 @@ const convertSpeech = (req, og_res) => {
       'Content-Type': 'audio/vnd.wav',
     },
   }).then(async (res) => {
-    const audioBytes = res.data.toString('base64');
-    const audio = {
-      content: audioBytes,
-    };
-    const config = {
-      encoding: 'LINEAR16',
-      sampleRateHertz: 44100,
-      languageCode: 'en-US',
-    };
-    const request = {
-      audio: audio,
-      config: config,
-    };
+    const writeStream = fs.createWriteStream('src/files/recording.wav');
+    writeStream.on('open', async() => {
+      writeStream.write(res.data);
+      writeStream.end();
 
-    // Detects speech in the audio file
-    const [response] = await client.recognize(request);
-    const transcription = response.results
-      .map(result => result.alternatives[0].transcript)
-      .join('\n');
-    console.log(response);
-    console.log(`Transcription: ${transcription}`);
+      const audioBytes = fs.readFileSync('src/files/recording.wav').toString('base64');
+      // const audioBytes = res.data.toString('base64');
+      const audio = {
+        content: audioBytes,
+      };
+      const config = {
+        encoding: 'LINEAR16',
+        sampleRateHertz: 16000,
+        languageCode: 'en-US',
+      };
+      const request = {
+        audio: audio,
+        config: config,
+      };
 
-    og_res.json(transcription);
+      // Detects speech in the audio file
+      const [response] = await client.recognize(request);
+      const transcription = response.results
+        .map(result => result.alternatives[0].transcript)
+        .join('\n');
+      console.log(response);
+      console.log(`Transcription: ${transcription}`);
+
+      og_res.json(transcription);
+    })
 
   })
     .catch((error) => {
