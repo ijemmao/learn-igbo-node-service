@@ -112,7 +112,7 @@ const convertSpeech = (req, og_res) => {
     url,
     method: 'GET',
     headers: {
-      'Content-Type': 'audio/vnd.wav',
+      'Content-Type': 'audio/*',
     },
   }).then(async (res) => {
     const audioBytes = res.data.toString('base64');
