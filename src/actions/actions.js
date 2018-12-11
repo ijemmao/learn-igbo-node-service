@@ -6,31 +6,62 @@ import fs from 'fs';
 import admin from './firebase';
 import translate from './translate';
 import speech from '@google-cloud/speech';
+import { isArray } from 'util';
 
 const database = admin.database();
 const ObjectID = mongodb.ObjectID;
 const client = new speech.SpeechClient();
 
 const translateInput = (req, res) => {
-  console.log(req.headers);
+  console.log(req.query);
   const words = req.query.words;
-  if (!Array.isArray(words)) {
-    return res.json({ error: 'query must be an array'});
-  }
-  const wordPromises = words.map(word => {
-    return translate.translate(word, 'ig');
-  });
+  let response = {};
 
-  Promise.all(wordPromises).then(values => {
-    const translatedWords = { words: values.map(item => item[0]) };
-    return res.json(translatedWords);
-  })
-  .catch(error => {
-    return res.state(500).json({
-      error,
-      errorMessage: error.message
-    });
-  })
+  if (Array.isArray(words)) {
+    // just passing in words
+    const wordsSet = new Set(words);
+
+    const wordPromises = Array.from(wordsSet).map(word => {
+      return translate.translate(word, 'ig');
+    })
+
+    Promise.all(wordPromises).then(values => {
+      response['words'] = values.map(item => item[0])
+      return res.json(response);
+    })
+    .catch(error => {
+      return res.state(500).json({
+        error,
+        errorMessage: error.message
+      });
+    })
+  } else {
+    translate.translate(words, 'ig').then((result) => {
+
+      // translate the entire sentence
+      response['sentence'] = result[0]
+
+      // translate individual words
+      const wordsSet = new Set(words);
+
+      const wordPromises = Array.from(wordsSet).map(word => {
+        return translate.translate(word, 'ig');
+      });
+
+      Promise.all(wordPromises).then(values => {
+        response['words'] = values.map(item => item[0])
+        return res.json(response);
+      })
+    })
+    .catch(error => {
+      return res.state(500).json({
+        error,
+        errorMessage: error.message
+      });
+    })
+  }
+  
+  
 }
 
 const uploadAudio = (req, res, database) => {
