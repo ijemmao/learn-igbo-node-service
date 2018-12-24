@@ -42,7 +42,7 @@ const translateInput = (req, res) => {
       response['sentence'] = result[0]
 
       // translate individual words
-      const wordsSet = new Set(words);
+      const wordsSet = new Set(words.split(' '));
 
       const wordPromises = Array.from(wordsSet).map(word => {
         return translate.translate(word, 'ig');
